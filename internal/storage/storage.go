@@ -1,7 +1,10 @@
 package storage
 
+type Row map[string]string
+
 type Table struct {
 	Name string
+	Rows []Row
 }
 
 type Database struct {

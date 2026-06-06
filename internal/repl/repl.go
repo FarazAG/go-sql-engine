@@ -9,7 +9,6 @@ import (
 	"sql-db/internal/storage"
 )
 
-
 func Start(db *storage.Database) {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -22,14 +21,14 @@ func Start(db *storage.Database) {
 
 		cmd, err := parser.Parse(input)
 
-		if err != nil{
+		if err != nil {
 			fmt.Println("Error: ", err)
 			continue
 		}
 
 		result, err := executor.Execute(cmd, db)
 
-		if err != nil{
+		if err != nil {
 			fmt.Println("Error:", err)
 			continue
 		}

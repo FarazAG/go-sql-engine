@@ -6,43 +6,67 @@ import (
 )
 
 type Command struct {
-	Action string
-	Target string
-	Name   string
+	Action    string
+	Target    string
+	TableName string
+	Data      map[string]string
 }
 
 func Parse(input string) (Command, error) {
 
 	input = strings.TrimSpace(input)
 
-	if input == ""{
+	if input == "" {
 		return Command{}, fmt.Errorf("empty input")
 	}
 
 	parts := strings.Split(input, " ")
 
-	switch parts[0]{
-	case "CREATE":	
-		if len(parts) != 3{
+	switch parts[0] {
+	case "CREATE":
+		if len(parts) != 3 {
 			return Command{}, fmt.Errorf("invalid CREATE syntax")
 		}
 		return Command{
-			Action: "CREATE",
-			Target: parts[1],
-			Name: parts[2],
+			Action:    "CREATE",
+			Target:    parts[1],
+			TableName: parts[2],
 		}, nil
 
 	case "SELECT":
-        if len(parts) != 2 {
-            return Command{}, fmt.Errorf("invalid SELECT syntax")
-        }
-        return Command{
-            Action: "SELECT",
-            Name:   parts[1],
-        }, nil
+		if len(parts) != 2 {
+			return Command{}, fmt.Errorf("invalid SELECT syntax")
+		}
+		return Command{
+			Action:    "SELECT",
+			TableName: parts[1],
+		}, nil
+
+	case "INSERT":
+		if len(parts) < 3 {
+			return Command{}, fmt.Errorf("invalid INSERT syntax")
+		}
+
+		data := make(map[string]string)
+
+		for _, pair := range parts[2:] {
+			kv := strings.Split(pair, "=")
+
+			if len(kv) != 2 {
+				return Command{}, fmt.Errorf("invalid key=value pair: %s", pair)
+			}
+
+			data[kv[0]] = kv[1]
+		}
+
+		return Command{
+			Action:    "INSERT",
+			TableName: parts[1],
+			Data:      data,
+		}, nil
 
 	default:
-		return Command{}, fmt.Errorf("uknown command: %s", parts[0])			
+		return Command{}, fmt.Errorf("uknown command: %s", parts[0])
 
 	}
 

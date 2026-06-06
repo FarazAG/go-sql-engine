@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sql-db/internal/parser"
 	"sql-db/internal/storage"
+	"strings"
 )
 
 func Execute(cmd parser.Command, db *storage.Database) (string, error) {
@@ -13,10 +14,39 @@ func Execute(cmd parser.Command, db *storage.Database) (string, error) {
 		return "table created: " + cmd.TableName, nil
 
 	case "SELECT":
-		if _, ok := db.Tables[cmd.TableName]; !ok {
+		table, exists := db.Tables[cmd.TableName]
+		if !exists {
 			return "", fmt.Errorf("table not found: %s", cmd.TableName)
 		}
-		return "table exists: " + cmd.TableName, nil
+		if len(table.Rows) == 0 {
+			return "empty table", nil
+		}
+
+		var result strings.Builder
+
+		for _, row := range table.Rows {
+			for k, v := range row {
+				result.WriteString(k)
+				result.WriteString("=")
+				result.WriteString(v)
+				result.WriteString(" ")
+			}
+			result.WriteString("\n")
+		}
+
+		return result.String(), nil
+
+	case "INSERT":
+		table, exists := db.Tables[cmd.TableName]
+
+		if !exists {
+			return "", fmt.Errorf("table not found: %s", cmd.TableName)
+		}
+		table.Rows = append(table.Rows, cmd.Data)
+
+		db.Tables[cmd.TableName] = table
+
+		return "row inserted", nil
 
 	default:
 		return "", fmt.Errorf("unknown action: %s", cmd.Action)

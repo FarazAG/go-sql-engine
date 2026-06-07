@@ -6,10 +6,12 @@ import (
 )
 
 type Command struct {
-	Action    string
-	Target    string
-	TableName string
-	Data      map[string]string
+	Action     string
+	Target     string
+	TableName  string
+	Data       map[string]string
+	WhereField string
+	WhereValue string
 }
 
 func Parse(input string) (Command, error) {
@@ -34,13 +36,30 @@ func Parse(input string) (Command, error) {
 		}, nil
 
 	case "SELECT":
-		if len(parts) != 2 {
-			return Command{}, fmt.Errorf("invalid SELECT syntax")
+		if len(parts) == 2 {
+			return Command{
+				Action:    "SELECT",
+				TableName: parts[1],
+			}, nil
 		}
-		return Command{
-			Action:    "SELECT",
-			TableName: parts[1],
-		}, nil
+
+		if len(parts) == 4 {
+			if parts[2] == "WHERE" {
+				kv := strings.Split(parts[3], "=")
+				if len(kv) != 2 {
+					return Command{}, fmt.Errorf("invalid WHERE clause syntax: expected key=value")
+				}
+
+				return Command{
+					Action:     "SELECT",
+					TableName:  parts[1],
+					WhereField: kv[0],
+					WhereValue: kv[1],
+				}, nil
+			}
+		}
+
+		return Command{}, fmt.Errorf("invalid SELECT syntax. Use 'SELECT table' or 'SELECT table WHERE k=v'")
 
 	case "INSERT":
 		if len(parts) < 3 {

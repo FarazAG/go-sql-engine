@@ -6,6 +6,10 @@ import (
 )
 
 func main() {
-	db := storage.NewDatabase()
+	db, err := storage.LoadDatabase()
+	if err != nil {
+		panic(err)
+	}
+
 	repl.Start(db)
 }

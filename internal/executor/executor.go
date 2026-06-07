@@ -18,6 +18,8 @@ func Execute(cmd parser.Command, db *storage.Database) (string, error) {
 		}
 
 		db.Tables[cmd.TableName] = storage.Table{Name: cmd.TableName}
+
+		db.Save()
 		return "table created: " + cmd.TableName, nil
 
 	case "SELECT":
@@ -62,6 +64,7 @@ func Execute(cmd parser.Command, db *storage.Database) (string, error) {
 
 		db.Tables[cmd.TableName] = table
 
+		db.Save()
 		return "row inserted", nil
 
 	case "SHOW_TABLES":

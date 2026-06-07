@@ -10,6 +10,13 @@ import (
 func Execute(cmd parser.Command, db *storage.Database) (string, error) {
 	switch cmd.Action {
 	case "CREATE":
+
+		_, exists := db.Tables[cmd.TableName]
+
+		if exists {
+			return "", fmt.Errorf("table already exists: %s", cmd.TableName)
+		}
+
 		db.Tables[cmd.TableName] = storage.Table{Name: cmd.TableName}
 		return "table created: " + cmd.TableName, nil
 

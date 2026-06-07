@@ -25,6 +25,15 @@ func Execute(cmd parser.Command, db *storage.Database) (string, error) {
 		var result strings.Builder
 
 		for _, row := range table.Rows {
+
+			if cmd.WhereField != "" {
+				value, exists := row[cmd.WhereField]
+
+				if !exists || value != cmd.WhereValue {
+					continue
+				}
+			}
+
 			for k, v := range row {
 				result.WriteString(k)
 				result.WriteString("=")

@@ -64,6 +64,16 @@ func Execute(cmd parser.Command, db *storage.Database) (string, error) {
 
 		return "row inserted", nil
 
+	case "SHOW_TABLES":
+		var result strings.Builder
+
+		for tableName := range db.Tables {
+			result.WriteString(tableName)
+			result.WriteString("\n")
+		}
+
+		return result.String(), nil
+
 	default:
 		return "", fmt.Errorf("unknown action: %s", cmd.Action)
 	}

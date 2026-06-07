@@ -84,6 +84,15 @@ func Parse(input string) (Command, error) {
 			Data:      data,
 		}, nil
 
+	case "SHOW":
+		if parts[1] == "TABLES" {
+			return Command{
+				Action: "SHOW_TABLES",
+			}, nil
+		}
+
+		return Command{}, fmt.Errorf("invalid syntax")
+
 	default:
 		return Command{}, fmt.Errorf("uknown command: %s", parts[0])
 

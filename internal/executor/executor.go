@@ -17,7 +17,7 @@ func Execute(cmd parser.Command, db *storage.Database) (string, error) {
 			return "", fmt.Errorf("table already exists: %s", cmd.TableName)
 		}
 
-		db.Tables[cmd.TableName] = storage.Table{Name: cmd.TableName}
+		db.Tables[cmd.TableName] = storage.Table{Name: cmd.TableName, Columns: cmd.Columns}
 
 		db.Save()
 		return "table created: " + cmd.TableName, nil
@@ -70,9 +70,19 @@ func Execute(cmd parser.Command, db *storage.Database) (string, error) {
 	case "SHOW_TABLES":
 		var result strings.Builder
 
-		for tableName := range db.Tables {
+		for tableName, table := range db.Tables {
 			result.WriteString(tableName)
-			result.WriteString("\n")
+			result.WriteString(" [")
+
+			for i, col := range table.Columns {
+				result.WriteString(col)
+
+				if i < len(table.Columns)-1 {
+					result.WriteString(" ")
+				}
+			}
+
+			result.WriteString("]\n")
 		}
 
 		return result.String(), nil

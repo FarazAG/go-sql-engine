@@ -6,10 +6,12 @@ import (
 )
 
 type Command struct {
-	Action     string
-	Target     string
-	TableName  string
-	Data       map[string]string
+	Action    string
+	Target    string
+	TableName string
+	Data      map[string]string
+	Columns   []string
+
 	WhereField string
 	WhereValue string
 }
@@ -26,13 +28,14 @@ func Parse(input string) (Command, error) {
 
 	switch parts[0] {
 	case "CREATE":
-		if len(parts) != 3 {
+		if len(parts) < 4 {
 			return Command{}, fmt.Errorf("invalid CREATE syntax")
 		}
 		return Command{
 			Action:    "CREATE",
 			Target:    parts[1],
 			TableName: parts[2],
+			Columns:   parts[3:],
 		}, nil
 
 	case "SELECT":

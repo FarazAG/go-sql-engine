@@ -8,8 +8,9 @@ import (
 type Row map[string]string
 
 type Table struct {
-	Name string
-	Rows []Row
+	Name    string
+	Columns []string
+	Rows    []Row
 }
 
 type Database struct {

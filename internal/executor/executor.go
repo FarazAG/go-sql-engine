@@ -60,6 +60,22 @@ func Execute(cmd parser.Command, db *storage.Database) (string, error) {
 		if !exists {
 			return "", fmt.Errorf("table not found: %s", cmd.TableName)
 		}
+
+		for key := range cmd.Data {
+			valid := false
+
+			for _, col := range table.Columns{
+				if key == col {
+					valid = true
+					break
+				}
+			}
+
+			if !valid {
+				return "", fmt.Errorf("invalid column '%s' for table %s", key, cmd.TableName)
+			}
+		}
+
 		table.Rows = append(table.Rows, cmd.Data)
 
 		db.Tables[cmd.TableName] = table

@@ -61,22 +61,32 @@ func Execute(cmd parser.Command, db *storage.Database) (string, error) {
 			return "", fmt.Errorf("table not found: %s", cmd.TableName)
 		}
 
-		for key := range cmd.Data {
-			valid := false
+		// for key := range cmd.Data {
+		// 	valid := false
 
-			for _, col := range table.Columns{
-				if key == col {
-					valid = true
-					break
-				}
-			}
+		// 	for _, col := range table.Columns{
+		// 		if key == col {
+		// 			valid = true
+		// 			break
+		// 		}
+		// 	}
 
-			if !valid {
-				return "", fmt.Errorf("invalid column '%s' for table %s", key, cmd.TableName)
-			}
+		// 	if !valid {
+		// 		return "", fmt.Errorf("invalid column '%s' for table %s", key, cmd.TableName)
+		// 	}
+		// }
+
+		if len(cmd.Values) != len(table.Columns) {
+			return "", fmt.Errorf("expected %d values, got %d", len(table.Columns), len(cmd.Values))
 		}
 
-		table.Rows = append(table.Rows, cmd.Data)
+		row := make(map[string]string)
+
+		for i, col := range table.Columns {
+			row[col] = cmd.Values[i]
+		}
+
+		table.Rows = append(table.Rows, row)
 
 		db.Tables[cmd.TableName] = table
 

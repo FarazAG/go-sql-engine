@@ -11,6 +11,7 @@ type Command struct {
 	TableName string
 	Data      map[string]string
 	Columns   []string
+	Values    []string
 
 	WhereField string
 	WhereValue string
@@ -69,22 +70,24 @@ func Parse(input string) (Command, error) {
 			return Command{}, fmt.Errorf("invalid INSERT syntax")
 		}
 
-		data := make(map[string]string)
+		// data := make(map[string]string)
 
-		for _, pair := range parts[2:] {
-			kv := strings.Split(pair, "=")
+		// for _, pair := range parts[2:] {
+		// 	kv := strings.Split(pair, "=")
 
-			if len(kv) != 2 {
-				return Command{}, fmt.Errorf("invalid key=value pair: %s", pair)
-			}
+		// 	if len(kv) != 2 {
+		// 		return Command{}, fmt.Errorf("invalid key=value pair: %s", pair)
+		// 	}
 
-			data[kv[0]] = kv[1]
-		}
+		// 	data[kv[0]] = kv[1]
+		// }
+
+		values := parts[2:]
 
 		return Command{
 			Action:    "INSERT",
 			TableName: parts[1],
-			Data:      data,
+			Values:    values,
 		}, nil
 
 	case "SHOW":

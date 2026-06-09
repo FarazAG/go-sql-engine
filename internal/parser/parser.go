@@ -13,8 +13,9 @@ type Command struct {
 	Columns   []string
 	Values    []string
 
-	WhereField string
-	WhereValue string
+	// WhereField string
+	// WhereValue string
+	Conditions map[string]string
 }
 
 func Parse(input string) (Command, error) {
@@ -47,20 +48,48 @@ func Parse(input string) (Command, error) {
 			}, nil
 		}
 
-		if len(parts) == 4 {
-			if parts[2] == "WHERE" {
-				kv := strings.Split(parts[3], "=")
+		// if len(parts) == 4 {
+		// 	if parts[2] == "WHERE" {
+		// 		kv := strings.Split(parts[3], "=")
+		// 		if len(kv) != 2 {
+		// 			return Command{}, fmt.Errorf("invalid WHERE clause syntax: expected key=value")
+		// 		}
+
+		// 		return Command{
+		// 			Action:     "SELECT",
+		// 			TableName:  parts[1],
+		// 			WhereField: kv[0],
+		// 			WhereValue: kv[1],
+		// 		}, nil
+		// 	}
+		// }
+
+		if len(parts) >= 4 && parts[2] == "WHERE" {
+
+			conditions := make(map[string]string)
+
+			for i := 3; i < len(parts); i += 2 {
+				kv := strings.Split(parts[i], "=")
+
 				if len(kv) != 2 {
-					return Command{}, fmt.Errorf("invalid WHERE clause syntax: expected key=value")
+					return Command{}, fmt.Errorf("invalid condition: expected key=value")
 				}
 
-				return Command{
-					Action:     "SELECT",
-					TableName:  parts[1],
-					WhereField: kv[0],
-					WhereValue: kv[1],
-				}, nil
+				conditions[kv[0]] = kv[1]
+
+				if i+1 < len(parts) {
+					if parts[i+1] != "AND" {
+						return Command{}, fmt.Errorf("expected AND")
+					}
+				}
 			}
+
+			return Command{
+				Action:     "SELECT",
+				TableName:  parts[1],
+				Conditions: conditions,
+			}, nil
+
 		}
 
 		return Command{}, fmt.Errorf("invalid SELECT syntax. Use 'SELECT table' or 'SELECT table WHERE k=v'")
